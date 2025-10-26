@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>My Grocery Finder</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { padding: 20px; max-width: 600px; margin: 0 auto; background: #f9f9f9; }
+    h1 { text-align: center; color: #2c6f3a; }
+    input, button { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+    button { background: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { opacity: 0.9; }
+    #results { margin-top: 20px; }
+    .item { background: white; padding: 12px; margin: 8px 0; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .delete { float: right; color: red; font-weight: bold; cursor: pointer; }
+    #scanBtn { background: #2196F3; }
+  </style>
+</head>
+<body>
+  <h1>🛒 Grocery Finder</h1>
+
+  <input type="text" id="productName" placeholder="Product name (e.g., Whole Milk)" autocomplete="off">
+  <input type="text" id="location" placeholder="Location (e.g., Aisle 4, Shelf B)" autocomplete="off">
+  <button onclick="saveProduct()">✅ Save Product</button>
+
+  <div style="margin-top: 20px;">
+    <input type="text" id="searchBox" placeholder="Search product..." oninput="searchProducts()" autocomplete="off">
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    let products = JSON.parse(localStorage.getItem('groceryProducts')) || [];
+
+    function saveProduct() {
+      const name = document.getElementById('productName').value.trim();
+      const loc = document.getElementById('location').value.trim();
+      if (name && loc) {
+        products.push({ name, location: loc });
+        localStorage.setItem('groceryProducts', JSON.stringify(products));
+        alert(`✅ Saved: ${name} → ${loc}`);
+        document.getElementById('productName').value = '';
+        document.getElementById('location').value = '';
+        searchProducts();
+      }
+    }
+
+    function searchProducts() {
+      const query = document.getElementById('searchBox').value.toLowerCase();
+      const results = products.filter(p => p.name.toLowerCase().includes(query));
+      const html = results.map(p => 
+        `<div class="item">${p.name} → <strong>${p.location}</strong> <span class="delete" onclick="deleteItem('${p.name}')">×</span></div>`
+      ).join('');
+      document.getElementById('results').innerHTML = html || (query ? 'No matches found' : '');
+    }
+
+    function deleteItem(name) {
+      products = products.filter(p => p.name !== name);
+      localStorage.setItem('groceryProducts', JSON.stringify(products));
+      searchProducts();
+    }
+  </script>
+</body>
+</html>
